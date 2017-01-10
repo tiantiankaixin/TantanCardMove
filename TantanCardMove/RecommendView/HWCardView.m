@@ -9,7 +9,7 @@
 #import "HWCardView.h"
 #import "UIView+Extend.h"
 
-#define HWCardScale  0.95
+#define HWCardScale  0.9
 #define HWCardMargin 5
 
 @interface HWCardView()
@@ -55,7 +55,7 @@
     CGFloat scale = pow(HWCardScale, index * 1.0);
     CGFloat offset = index * HWCardMargin;
     transform = CGAffineTransformMakeScale(scale,1.0);
-    transform =  CGAffineTransformTranslate(transform, 0,offset);
+    transform = CGAffineTransformTranslate(transform, 0,offset);
     return transform;
 }
 
@@ -70,6 +70,7 @@
         if (aboveView)
         {
             [self insertSubview:itemView belowSubview:aboveView];
+            [self.itemViews addObject:itemView];
         }
         else
         {
@@ -78,8 +79,16 @@
         }
         aboveView = itemView;
         itemView.transform = [self transformWithIndex:i progress:1.0];
-        [self.itemViews addObject:itemView];
     }
+}
+
+- (CGFloat)progress
+{
+    CGFloat progress = 0.0;
+    CGFloat centerX = self.topView.width / 2;
+    CGFloat currentCenterX = self.topView.centerX;
+    progress = ABS(currentCenterX - centerX) / centerX;
+    return progress;
 }
 
 - (void)panCardView:(UIPanGestureRecognizer *)ges
@@ -95,6 +104,7 @@
         self.topView.centerX += translation.x;
         self.topView.centerY += translation.y;
         [ges setTranslation:CGPointZero inView:self];
+        [self changeTopThreeViewWithProgress:[self progress]];
     }
     else
     {
@@ -124,11 +134,12 @@
     {
         return;
     }
+    NSLog(@"%.2f",progress);
     [self.itemViews enumerateObjectsUsingBlock:^(UIView *obj, NSUInteger idx, BOOL * _Nonnull stop) {
         
-        if (idx > 0 && idx < 2)
+        if (idx < 2)
         {
-            
+            obj.transform = [self transformWithIndex:idx progress:progress];
         }
     }];
 }

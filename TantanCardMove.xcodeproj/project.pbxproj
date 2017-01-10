@@ -449,6 +449,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = TantanCardMove/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = haowai.TantanCardMove;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -460,6 +461,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = TantanCardMove/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = haowai.TantanCardMove;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -531,6 +533,7 @@
 				204432A31E24CB8100604672 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		204432A41E24CB8100604672 /* Build configuration list for PBXNativeTarget "TantanCardMoveTests" */ = {
 			isa = XCConfigurationList;
@@ -539,6 +542,7 @@
 				204432A61E24CB8100604672 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		204432A71E24CB8100604672 /* Build configuration list for PBXNativeTarget "TantanCardMoveUITests" */ = {
 			isa = XCConfigurationList;
@@ -547,6 +551,7 @@
 				204432A91E24CB8100604672 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
