@@ -45,12 +45,24 @@
     [_topView addGestureRecognizer:panges];
 }
 
+- (CGAffineTransform)transformWithIndex:(NSInteger)index progress:(CGFloat)progress
+{
+    CGAffineTransform transform = CGAffineTransformIdentity;
+    if (index > 2)
+    {
+        index = 2;
+    }
+    CGFloat scale = pow(HWCardScale, index * 1.0);
+    CGFloat offset = index * HWCardMargin;
+    transform = CGAffineTransformMakeScale(scale,1.0);
+    transform =  CGAffineTransformTranslate(transform, 0,offset);
+    return transform;
+}
+
 - (void)loadCardItemView
 {
     NSInteger itemCount = [self.m_delegate itemCount];
     UIView *aboveView = nil;
-    CGFloat scale = 1.0;
-    CGFloat offset = 0;
     CGRect cardFrame = CGRectMake(0, 0, CGRectGetWidth(self.frame), CGRectGetHeight(self.frame));
     for (int i = 0; i < itemCount; i++)
     {
@@ -65,13 +77,7 @@
             [self setTopView:itemView];
         }
         aboveView = itemView;
-        itemView.transform = CGAffineTransformMakeScale(scale,1.0);
-        itemView.transform =  CGAffineTransformTranslate(itemView.transform, 0, offset);
-        if (i < 2)//从第4个开始与第3个保持一样的transform;
-        {
-            scale *= HWCardScale;
-            offset += HWCardMargin;
-        }
+        itemView.transform = [self transformWithIndex:i progress:1.0];
         [self.itemViews addObject:itemView];
     }
 }
