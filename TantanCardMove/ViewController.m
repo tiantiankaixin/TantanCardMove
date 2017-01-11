@@ -26,19 +26,21 @@
 
 - (void)setUpView
 {
-    HWCardView *cardViwe = [HWCardView cardViewWithFrame:CGRectMake(37, 64, 300, 450) delegate:self];
+    HWCardView *cardViwe = [HWCardView cardViewWithFrame:CGRectMake(37, 64, 300, 400) delegate:self];
     self.cardView = cardViwe;
     [self.view addSubview:cardViwe];
 }
 
 - (NSInteger)itemCount
 {
-    return 5;
+    return 20;
 }
 
 - (UIView *)itemViewWithIndex:(NSInteger)index frame:(CGRect)frame
 {
     UIView *itemView = [[UIView alloc] initWithFrame:frame];
+    itemView.layer.cornerRadius = 8;
+    itemView.layer.masksToBounds = YES;
     if (index % 2 == 0)
     {
         itemView.backgroundColor = [UIColor redColor];
