@@ -12,6 +12,8 @@
 #define HWCardScale  0.9
 #define HWCardMargin 5
 #define HWFlyOutDistance 500 //卡片移除时偏移的距离
+#define HWFlyRate 1200//卡片飞出速度
+#define HWAngle (M_PI_4 * 0.25)
 
 typedef NS_ENUM(NSInteger,CardFlyDirection){
     
@@ -36,6 +38,7 @@ typedef NS_ENUM(NSInteger,CardFlyDirection){
 {
     if (_itemViews == nil)
     {
+        
         _itemViews = [[NSMutableArray alloc] init];
     }
     return _itemViews;
@@ -73,7 +76,12 @@ typedef NS_ENUM(NSInteger,CardFlyDirection){
     CGFloat offset = index * HWCardMargin;
     CGFloat nextOffset = (index + 1) * HWCardMargin;
     offset = nextOffset - (nextOffset - offset) * progress;
-    transform = CGAffineTransformMakeScale(scale,1.0);
+    CGFloat addOffset = self.height / 2 - self.height * scale / 2;
+    if (addOffset > 0)
+    {
+        offset = (offset + addOffset) / scale;
+    }
+    transform = CGAffineTransformMakeScale(scale,scale);
     transform = CGAffineTransformTranslate(transform, 0,offset);
     return transform;
 }
@@ -119,44 +127,6 @@ typedef NS_ENUM(NSInteger,CardFlyDirection){
     return progress;
 }
 
-//根据位移计算卡片飞出方向
-- (CardFlyDirection)direction
-{
-    CardFlyDirection direction = f_unKnown;
-    /*
-    if (ABS(translation.y) > ABS(translation.x))//上下移动
-    {
-        direction = f_top;
-        if (translation.y > 0)
-        {
-            direction = f_bottom;
-        }
-    }
-    else//左右移动
-    {
-        direction = f_left;
-        if (translation.x > 0)
-        {
-            direction = f_right;
-        }
-    }
-     */
-    CGPoint center = CGPointMake(self.width / 2, self.height / 2);
-    CGPoint currentCenter = self.topView.center;
-    if (ABS(currentCenter.x - center.x) > 0.1 * self.width)
-    {
-        if (currentCenter.x - center.x > 0)
-        {
-            direction = f_right;
-        }
-        else
-        {
-            direction = f_left;
-        }
-    }
-    return direction;
-}
-
 - (void)panCardView:(UIPanGestureRecognizer *)ges
 {
     UIGestureRecognizerState state = ges.state;
@@ -170,24 +140,20 @@ typedef NS_ENUM(NSInteger,CardFlyDirection){
         self.topView.centerX += translation.x;
         self.topView.centerY += translation.y;
         [ges setTranslation:CGPointZero inView:self];
+        [self makeRotation];
         [self changeTopThreeViewWithProgress:[self progress]];
     }
     else
     {
         CGPoint ve = [ges velocityInView:self];
-        self.flyDirection = [self direction];
-        if ([self progress] > 0.8 && self.flyDirection != f_unKnown)
+        BOOL canDelete = (ABS(self.topView.centerX - self.width / 2) > 0.3 * self.width);
+        if ([self progress] > 0.9 && canDelete)
         {
-            [self deleteTopCardWithDirection:self.flyDirection];
+            [self deleteTopCard];
         }
         else if (ABS(ve.x) > 800)
         {
-            self.flyDirection = f_left;
-            if (ve.x > 0)
-            {
-                self.flyDirection = f_right;
-            }
-            [self deleteTopCardWithDirection:self.flyDirection];
+            [self deleteTopCard];
         }
         else
         {
@@ -196,41 +162,84 @@ typedef NS_ENUM(NSInteger,CardFlyDirection){
     }
 }
 
-//MARK: 移除顶部card
-- (void)deleteTopCardWithDirection:(CardFlyDirection)direction
+//MARK: 根据位移做rotaion
+- (void)makeRotation
 {
-    CGFloat topCardX = self.topView.left;
-    CGFloat topCardY = self.topView.top;
-    switch (direction)
+    /*
+    CGFloat angle = 0;
+    if (self.topView.centerX > self.width / 2)
     {
-        case f_top:
-        {
-            topCardY -= HWFlyOutDistance;
-            break;
-        }
-        case f_bottom:
-        {
-            topCardY += HWFlyOutDistance;
-            break;
-        }
-        case f_left:
-        {
-            topCardX -= HWFlyOutDistance;
-            break;
-        }
-        case f_right:
-        {
-            topCardX += HWFlyOutDistance;
-            break;
-        }
-        default:
-            break;
+        angle = -HWAngle;
+        self.topView.transform = CGAffineTransformMakeRotation(angle);
     }
-    [UIView animateWithDuration:0.3 delay:0.0 options:UIViewAnimationOptionCurveEaseOut animations:^{
+    else if(self.topView.centerX < self.width / 2)
+    {
+        angle = HWAngle;
+        self.topView.transform = CGAffineTransformMakeRotation(angle);
+    }
+    else
+    {
+        self.topView.transform = CGAffineTransformIdentity;
+    }
+     */
+}
+
+- (CGPoint)flyPoint
+{
+    CGPoint center = CGPointMake(self.width / 2, self.height / 2);
+    CGFloat scale = ABS((self.topView.centerY - center.y) / (self.topView.centerX - center.x));
+    CGFloat outsideX,outsideY;
+    CGFloat screenW = [UIScreen mainScreen].bounds.size.width;
+    CGFloat screenH = [UIScreen mainScreen].bounds.size.height;
+    if(self.topView.centerX >= center.x)//往右边跑
+    {
+        outsideX = screenW + self.width / 2 - (screenW - self.width) / 2;
+        if (self.topView.centerY <= center.y)//往上跑
+        {
+            outsideY = center.y - scale * (outsideX - center.x);
+        }
+        else//往下跑
+        {
+            outsideY = center.y + scale * (outsideX - center.x);
+        }
+    }
+    else//往左跑
+    {
+        outsideX = -(self.width / 2 + (screenW - self.width) / 2);
+        if (self.topView.centerY <= center.y)//往上跑
+        {
+            outsideY = center.y + scale * (outsideX - center.x);
+        }
+        else//往下跑
+        {
+            outsideY = center.y - scale * (outsideX - center.x);
+        }
+    }
+    if (self.topView.centerX == center.x)
+    {
+        outsideX = center.x;
+        outsideY = -(self.height / 2 + (screenH - self.height) / 2);
+        if (self.topView.centerY > center.y)
+        {
+            outsideY = screenH + self.height / 2 - (screenH - self.height) / 2;
+        }
+    }
+    else if (self.topView.centerY == center.y)
+    {
+        outsideY = center.y;
+    }
+    return CGPointMake(outsideX, outsideY);
+}
+
+//MARK: 移除顶部card
+- (void)deleteTopCard
+{
+    CGPoint flyCenter = [self flyPoint];
+    CGFloat duration = (flyCenter.x - self.width / 2) / HWFlyRate;
+    [UIView animateWithDuration:duration delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
         
         //顶部card飞出
-        self.topView.left = topCardX;
-        self.topView.top = topCardY;
+        self.topView.center = flyCenter;
         //接下来两个卡片改变transform
         [self changeTopThreeViewWithProgress:1.0];
         
@@ -257,7 +266,13 @@ typedef NS_ENUM(NSInteger,CardFlyDirection){
             self.topView.top = 0;
             [self changeTopThreeViewWithProgress:0.0];
             
-        } completion:nil];
+        } completion:^(BOOL finished) {
+            
+            if (finished)
+            {
+                //[self makeRotation];
+            }
+        }];
     }
 }
 
