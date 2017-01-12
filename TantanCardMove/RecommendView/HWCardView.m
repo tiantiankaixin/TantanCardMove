@@ -83,6 +83,10 @@ typedef NS_ENUM(NSInteger,CardFlyDirection){
     }
     transform = CGAffineTransformMakeScale(scale,scale);
     transform = CGAffineTransformTranslate(transform, 0,offset);
+    if (index == 0 && progress == 1.0)
+    {
+        transform = CGAffineTransformIdentity;
+    }
     return transform;
 }
 
@@ -140,7 +144,7 @@ typedef NS_ENUM(NSInteger,CardFlyDirection){
         self.topView.centerX += translation.x;
         self.topView.centerY += translation.y;
         [ges setTranslation:CGPointZero inView:self];
-        [self makeRotation];
+        [self makeRotationWithProgress:[self progress]];
         [self changeTopThreeViewWithProgress:[self progress]];
     }
     else
@@ -163,25 +167,30 @@ typedef NS_ENUM(NSInteger,CardFlyDirection){
 }
 
 //MARK: 根据位移做rotaion
-- (void)makeRotation
+- (void)makeRotationWithProgress:(CGFloat)progress
 {
-    /*
     CGFloat angle = 0;
-    if (self.topView.centerX > self.width / 2)
-    {
-        angle = -HWAngle;
-        self.topView.transform = CGAffineTransformMakeRotation(angle);
-    }
-    else if(self.topView.centerX < self.width / 2)
-    {
-        angle = HWAngle;
-        self.topView.transform = CGAffineTransformMakeRotation(angle);
-    }
-    else
+    if (progress == 0.0)
     {
         self.topView.transform = CGAffineTransformIdentity;
     }
-     */
+    else
+    {
+        if (self.topView.centerX > self.width / 2)
+        {
+            angle = -HWAngle;
+            self.topView.transform = CGAffineTransformMakeRotation(angle * progress);
+        }
+        else if(self.topView.centerX < self.width / 2)
+        {
+            angle = HWAngle;
+            self.topView.transform = CGAffineTransformMakeRotation(angle * progress);
+        }
+        else
+        {
+            self.topView.transform = CGAffineTransformIdentity;
+        }
+    }
 }
 
 - (CGPoint)flyPoint
@@ -262,17 +271,12 @@ typedef NS_ENUM(NSInteger,CardFlyDirection){
     {
         [UIView animateWithDuration:0.5f delay:0 usingSpringWithDamping:0.7 initialSpringVelocity:5 options:UIViewAnimationOptionCurveEaseOut | UIViewAnimationOptionAllowUserInteraction animations:^{
             
-            self.topView.left = 0;
-            self.topView.top = 0;
+            self.topView.centerX = self.width / 2;
+            self.topView.centerY = self.height / 2;
             [self changeTopThreeViewWithProgress:0.0];
+            [self makeRotationWithProgress:0.0f];
             
-        } completion:^(BOOL finished) {
-            
-            if (finished)
-            {
-                //[self makeRotation];
-            }
-        }];
+        } completion:nil];
     }
 }
 
