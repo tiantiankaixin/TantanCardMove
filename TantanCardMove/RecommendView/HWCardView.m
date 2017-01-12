@@ -176,7 +176,7 @@ typedef NS_ENUM(NSInteger,CardFlyDirection){
     {
         CGPoint ve = [ges velocityInView:self];
         self.flyDirection = [self direction];
-        if ([self progress] > 0.5 && self.flyDirection != f_unKnown)
+        if ([self progress] > 0.8 && self.flyDirection != f_unKnown)
         {
             [self deleteTopCardWithDirection:self.flyDirection];
         }
@@ -251,7 +251,7 @@ typedef NS_ENUM(NSInteger,CardFlyDirection){
 {
     if (self.topView)
     {
-        [UIView animateWithDuration:0.5f delay:0 usingSpringWithDamping:0.7 initialSpringVelocity:5 options:UIViewAnimationOptionCurveEaseOut animations:^{
+        [UIView animateWithDuration:0.5f delay:0 usingSpringWithDamping:0.7 initialSpringVelocity:5 options:UIViewAnimationOptionCurveEaseOut | UIViewAnimationOptionAllowUserInteraction animations:^{
             
             self.topView.left = 0;
             self.topView.top = 0;

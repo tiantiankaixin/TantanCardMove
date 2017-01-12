@@ -33,7 +33,7 @@
 
 - (NSInteger)itemCount
 {
-    return 20;
+    return 30;
 }
 
 - (UIView *)itemViewWithIndex:(NSInteger)index frame:(CGRect)frame
