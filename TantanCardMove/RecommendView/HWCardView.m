@@ -11,23 +11,12 @@
 
 #define HWCardScale  0.9
 #define HWCardMargin 5
-#define HWFlyOutDistance 500 //卡片移除时偏移的距离
 #define HWFlyRate 1200//卡片飞出速度
 #define HWAngle (M_PI_4 * 0.25)
-
-typedef NS_ENUM(NSInteger,CardFlyDirection){
-    
-    f_unKnown,
-    f_top,
-    f_bottom,
-    f_left,
-    f_right
-};
 
 @interface HWCardView()
 
 @property (nonatomic, weak) UIView *topView;
-@property (nonatomic, assign) CardFlyDirection flyDirection;
 @property (nonatomic, strong) NSMutableArray *itemViews;
 
 @end
@@ -135,9 +124,7 @@ typedef NS_ENUM(NSInteger,CardFlyDirection){
 {
     UIGestureRecognizerState state = ges.state;
     if (state == UIGestureRecognizerStateBegan)
-    {
-        self.flyDirection = f_unKnown;
-    }
+    {}
     else if(state == UIGestureRecognizerStateChanged)
     {
         CGPoint translation = [ges translationInView:self];
