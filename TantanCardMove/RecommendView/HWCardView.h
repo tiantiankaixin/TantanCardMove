@@ -13,6 +13,8 @@
 @required
 - (NSInteger)itemCount;
 - (UIView *)itemViewWithIndex:(NSInteger)index frame:(CGRect)frame;
+- (void)closeCardView;
+- (void)clickItemWithIndex:(NSInteger)index;
 
 @end
 

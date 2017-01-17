@@ -12,7 +12,7 @@
 #define HWCardScale  0.9
 #define HWCardMargin 5
 #define HWFlyRate 1200//卡片飞出速度
-#define HWAngle (M_PI_4 * 0.25)
+#define HWAngle (M_PI_4 * (1 / 8.0))
 
 @interface HWCardView()
 
@@ -27,7 +27,6 @@
 {
     if (_itemViews == nil)
     {
-        
         _itemViews = [[NSMutableArray alloc] init];
     }
     return _itemViews;
@@ -120,25 +119,31 @@
     return progress;
 }
 
+//旋转进度
+- (CGFloat)rotaionProgress
+{
+    CGFloat centerX = self.topView.width / 2;
+    CGFloat currentCenterX = self.topView.centerX;
+    return  ABS(currentCenterX - centerX) / centerX;
+}
+
 - (void)panCardView:(UIPanGestureRecognizer *)ges
 {
     UIGestureRecognizerState state = ges.state;
-    if (state == UIGestureRecognizerStateBegan)
-    {}
-    else if(state == UIGestureRecognizerStateChanged)
+    if(state == UIGestureRecognizerStateChanged)
     {
         CGPoint translation = [ges translationInView:self];
         self.topView.centerX += translation.x;
         self.topView.centerY += translation.y;
         [ges setTranslation:CGPointZero inView:self];
-        [self makeRotationWithProgress:[self progress]];
+        [self makeRotationWithProgress:[self rotaionProgress]];
         [self changeTopThreeViewWithProgress:[self progress]];
     }
     else
     {
         CGPoint ve = [ges velocityInView:self];
         BOOL canDelete = (ABS(self.topView.centerX - self.width / 2) > 0.3 * self.width);
-        if ([self progress] > 0.9 && canDelete)
+        if ([self progress] > 0.8 && canDelete)
         {
             [self deleteTopCard];
         }
@@ -189,7 +194,7 @@
     CGFloat screenH = [UIScreen mainScreen].bounds.size.height;
     if(self.topView.centerX >= center.x)//往右边跑
     {
-        outsideX = screenW + self.width / 2 - (screenW - self.width) / 2;
+        outsideX = screenW + self.width / 2 - (screenW - self.width) / 2 + 50;
         if (self.topView.centerY <= center.y)//往上跑
         {
             outsideY = center.y - scale * (outsideX - center.x);
@@ -201,7 +206,7 @@
     }
     else//往左跑
     {
-        outsideX = -(self.width / 2 + (screenW - self.width) / 2);
+        outsideX = -(self.width / 2 + (screenW - self.width) / 2) - 50;
         if (self.topView.centerY <= center.y)//往上跑
         {
             outsideY = center.y + scale * (outsideX - center.x);
@@ -242,11 +247,18 @@
     } completion:^(BOOL finished) {
         
         //改变topView
-        if (finished && self.itemViews.count > 0)
+        if (finished)
         {
             [self.topView removeFromSuperview];
-            [self setTopView:[self.itemViews firstObject]];
-            [self.itemViews removeObjectAtIndex:0];
+            if (self.itemViews.count > 0)
+            {
+                [self setTopView:[self.itemViews firstObject]];
+                [self.itemViews removeObjectAtIndex:0];
+            }
+            else
+            {
+                [self.m_delegate closeCardView];
+            }
         }
     }];
 }

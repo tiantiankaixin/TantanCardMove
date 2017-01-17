@@ -52,6 +52,16 @@
     return itemView;
 }
 
+- (void)closeCardView
+{
+
+}
+
+- (void)clickItemWithIndex:(NSInteger)index
+{
+    
+}
+
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
